@@ -44,9 +44,19 @@ jobs:
         run: flutter clean
       - name: Build APK
         run: flutter build apk --debug --split-per-abi
+      - run: flutter build ios --no-codesign
+
+      # Create iOS IPA
+      - run: |
+          cd build/ios/iphoneos
+          mkdir Payload
+          cp -r Runner.app Payload/
+          zip -r app.ipa Payload
       - name: Push to Releases
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "build/app/outputs/apk/debug/*"
+          artifacts: 
+           build/app/outputs/apk/debug/*.apk
+           build/ios/iphoneos/app.ipa
           tag: v1.0.${{ github.run_number }}
           token: ${{ secrets.TOKEN }}
